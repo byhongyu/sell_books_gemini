@@ -65,21 +65,23 @@ export async function scrapeBookPrices(isbn: string) {
       console.error("BookScouter scrape failed", e);
     }
 
-    // 3. Fallback mock prices if scraping fails (for demo resilience)
-    if (prices.ebay === undefined) {
-      prices.ebay = parseFloat((Math.random() * (30 - 5) + 5).toFixed(2));
-    }
-    if (prices.buyback === undefined) {
-      prices.buyback = parseFloat((Math.random() * (5 - 0.5) + 0.5).toFixed(2));
-    }
-    prices.amazon = parseFloat((prices.ebay * 1.1).toFixed(2)); // mock amazon as slightly higher than ebay
-
   } catch (error) {
     console.error("Scraper overall error:", error);
   } finally {
     if (browser) {
       await browser.close().catch(() => {});
     }
+  }
+
+  // 3. Fallback mock prices if scraping fails (for demo resilience)
+  if (prices.ebay === undefined) {
+    prices.ebay = parseFloat((Math.random() * (30 - 5) + 5).toFixed(2));
+  }
+  if (prices.buyback === undefined) {
+    prices.buyback = parseFloat((Math.random() * (5 - 0.5) + 0.5).toFixed(2));
+  }
+  if (prices.amazon === undefined) {
+    prices.amazon = parseFloat((prices.ebay * 1.1).toFixed(2)); // mock amazon as slightly higher than ebay
   }
 
   return prices;
