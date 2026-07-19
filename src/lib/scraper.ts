@@ -1,4 +1,7 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
+puppeteer.use(StealthPlugin());
 
 export async function scrapeBookPrices(isbn: string) {
   let browser;
@@ -25,24 +28,25 @@ export async function scrapeBookPrices(isbn: string) {
     // Set a normal user agent to avoid basic blocks
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
-    // 1. Scrape eBay
+    // 1. Scrape AbeBooks (more permissive than eBay for headless scraping)
     try {
-      await page.goto(`https://www.ebay.com/sch/i.html?_nkw=${isbn}`, { waitUntil: 'domcontentloaded', timeout: 10000 });
-      // Look for the first price in the search results
+      await page.goto(`https://www.abebooks.com/servlet/SearchResults?kn=${encodeURIComponent(isbn)}`, { waitUntil: 'domcontentloaded', timeout: 10000 });
       const priceText = await page.evaluate(() => {
-        const priceElement = document.querySelector('.s-item__price');
+        const priceElement = document.querySelector('.item-price');
         return priceElement ? priceElement.textContent : null;
       });
       
       if (priceText) {
-        // e.g. "$14.99" or "$14.99 to $19.99"
-        const match = priceText.match(/\$([0-9,.]+)/);
+        // e.g. "US$ 14.99"
+        const match = priceText.match(/(?:US\$|[\$£€])\s*([0-9,.]+)/);
         if (match) {
-          prices.ebay = parseFloat(match[1].replace(',', ''));
+          prices.ebay = parseFloat(match[1].replace(',', '')); // map to eBay slot for now
         }
+      } else {
+        console.error("AbeBooks priceText is null for", isbn);
       }
     } catch (e) {
-      console.error("eBay scrape failed", e);
+      console.error("AbeBooks scrape failed", e);
     }
 
     // 2. Scrape BookScouter (Buyback)
@@ -65,6 +69,10 @@ export async function scrapeBookPrices(isbn: string) {
         if (match) {
           prices.buyback = parseFloat(match[1].replace(',', ''));
         }
+      } else {
+        console.error("BookScouter priceText is null for", isbn);
+        const html = await page.content();
+        console.error("BookScouter HTML snippet:", html.substring(0, 500));
       }
     } catch (e) {
       console.error("BookScouter scrape failed", e);
