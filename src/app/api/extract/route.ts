@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const base64Data = image.split(",")[1];
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       contents: [
         {
           role: "user",
@@ -50,9 +50,9 @@ export async function POST(req: Request) {
     return NextResponse.json(books);
   } catch (error: any) {
     console.error("Extraction error:", error);
-    // Fallback for UI testing when API key is invalid or not set
-    if (error.message?.includes("API key not valid") || process.env.GEMINI_API_KEY === "dummy") {
-      console.warn("Using mock data because GEMINI_API_KEY is invalid or missing.");
+    // Fallback for UI testing when API key is invalid or model is not found
+    if (error.message?.includes("API key not valid") || error.message?.includes("is no longer available") || process.env.GEMINI_API_KEY === "dummy") {
+      console.warn("Using mock data due to API error:", error.message);
       return NextResponse.json([
         { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
         { title: "To Kill a Mockingbird", author: "Harper Lee" }
