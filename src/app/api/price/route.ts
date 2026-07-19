@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     // Even if ISBN is not found, try to scrape (e.g. eBay works by title) or return mock fallback
     console.log(`[API /price] Triggering scraper for "${isbn || title}"...`);
-    prices = await scrapeBookPrices(isbn || title);
+    prices = await scrapeBookPrices(isbn || "", title, author);
 
     // Calculate suggested price: Max of all, or default
     const validPrices = [prices.amazon, prices.ebay, prices.buyback].filter((p): p is number => p !== undefined);
