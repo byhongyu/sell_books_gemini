@@ -23,13 +23,12 @@ export async function scrapeBookPrices(isbn: string) {
   // Buyback is significantly lower (10-20% of eBay)
   const buyback = parseFloat((ebay * (0.1 + (pseudoRandom * 0.1))).toFixed(2));
 
-  // The UI no longer needs isMock because we treat these as "demo realtime" prices
+  // The UI will display (Mock) to be transparent that these are fallback prices
   const prices = {
     amazon,
     ebay,
     buyback,
-    // Keep isMock as false so the UI doesn't show the mock tag
-    isMock: { amazon: false, ebay: false, buyback: false }
+    isMock: { amazon: true, ebay: true, buyback: true }
   };
 
   console.log(`${logPrefix} Generated Prices:`, prices);
