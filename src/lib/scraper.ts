@@ -1,7 +1,4 @@
-import puppeteer from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-
-puppeteer.use(StealthPlugin());
+import puppeteer from 'puppeteer';
 
 export async function scrapeBookPrices(isbn: string) {
   let browser;
@@ -30,10 +27,6 @@ export async function scrapeBookPrices(isbn: string) {
     console.log(`${logPrefix} Browser launched. Creating new page...`);
     const page = await browser.newPage();
     
-    // Set a normal user agent to avoid basic blocks
-    console.log(`${logPrefix} Setting user agent...`);
-    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-
     // 1. Scrape AbeBooks (more permissive than eBay for headless scraping)
     try {
       console.log(`${logPrefix} Navigating to AbeBooks...`);
