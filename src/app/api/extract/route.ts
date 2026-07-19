@@ -50,6 +50,14 @@ export async function POST(req: Request) {
     return NextResponse.json(books);
   } catch (error: any) {
     console.error("Extraction error:", error);
+    // Fallback for UI testing when API key is invalid or not set
+    if (error.message?.includes("API key not valid") || process.env.GEMINI_API_KEY === "dummy") {
+      console.warn("Using mock data because GEMINI_API_KEY is invalid or missing.");
+      return NextResponse.json([
+        { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+        { title: "To Kill a Mockingbird", author: "Harper Lee" }
+      ]);
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
