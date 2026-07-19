@@ -6,6 +6,11 @@ export async function scrapeBookPrices(isbn: string) {
     amazon: undefined as number | undefined,
     ebay: undefined as number | undefined,
     buyback: undefined as number | undefined,
+    isMock: {
+      amazon: false,
+      ebay: false,
+      buyback: false
+    }
   };
 
   try {
@@ -76,12 +81,15 @@ export async function scrapeBookPrices(isbn: string) {
   // 3. Fallback mock prices if scraping fails (for demo resilience)
   if (prices.ebay === undefined) {
     prices.ebay = parseFloat((Math.random() * (30 - 5) + 5).toFixed(2));
+    prices.isMock.ebay = true;
   }
   if (prices.buyback === undefined) {
     prices.buyback = parseFloat((Math.random() * (5 - 0.5) + 0.5).toFixed(2));
+    prices.isMock.buyback = true;
   }
   if (prices.amazon === undefined) {
     prices.amazon = parseFloat((prices.ebay * 1.1).toFixed(2)); // mock amazon as slightly higher than ebay
+    prices.isMock.amazon = true;
   }
 
   return prices;

@@ -14,6 +14,11 @@ type ScannedBook = {
     amazon?: number;
     ebay?: number;
     buyback?: number;
+    isMock?: {
+      amazon: boolean;
+      ebay: boolean;
+      buyback: boolean;
+    };
   };
 };
 
@@ -166,19 +171,25 @@ export default function BookScanner() {
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-neutral-400">Buyback Offer (BookScouter)</span>
                       <span className="font-semibold text-white">
-                        {book.prices?.buyback !== undefined ? `$${book.prices.buyback.toFixed(2)}` : "Checking..."}
+                        {book.prices?.buyback !== undefined 
+                          ? `$${book.prices.buyback.toFixed(2)}${book.prices.isMock?.buyback ? ' (Mock)' : ''}` 
+                          : "Checking..."}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-neutral-400">eBay Avg Price</span>
                       <span className="font-semibold text-white">
-                        {book.prices?.ebay !== undefined ? `$${book.prices.ebay.toFixed(2)}` : "Checking..."}
+                        {book.prices?.ebay !== undefined 
+                          ? `$${book.prices.ebay.toFixed(2)}${book.prices.isMock?.ebay ? ' (Mock)' : ''}` 
+                          : "Checking..."}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-neutral-400">Amazon Marketplace</span>
                       <span className="font-semibold text-white">
-                        {book.prices?.amazon !== undefined ? `$${book.prices.amazon.toFixed(2)}` : "Checking..."}
+                        {book.prices?.amazon !== undefined 
+                          ? `$${book.prices.amazon.toFixed(2)}${book.prices.isMock?.amazon ? ' (Mock)' : ''}` 
+                          : "Checking..."}
                       </span>
                     </div>
                   </div>
