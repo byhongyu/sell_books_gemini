@@ -4,6 +4,7 @@ import { scrapeBookPrices } from "@/lib/scraper";
 export async function POST(req: Request) {
   try {
     const { title, author } = await req.json();
+    console.log(`[API /price] Request received for: "${title}"`);
 
     if (!title) {
       return NextResponse.json({ error: "Missing title" }, { status: 400 });
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     };
 
     // Even if ISBN is not found, try to scrape (e.g. eBay works by title) or return mock fallback
+    console.log(`[API /price] Triggering scraper for "${isbn || title}"...`);
     prices = await scrapeBookPrices(isbn || title);
 
     // Calculate suggested price: Max of all, or default
