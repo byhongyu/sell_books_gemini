@@ -43,8 +43,10 @@ Exact dollar thresholds are a **starting proposal** and will be tuned once real 
 
 ## Deliverables
 
-1. **`docs/research/platform-comparison.md`** — readable writeup: per-platform breakdown (payout, fees, shipping, effort, sell-through, automation surface) plus the recommendation rationale and research date.
-2. **`data/platform-rules.json`** — structured decision rules consumed programmatically by later tools:
+All implementation output lives under `impl/claude/` (per user preference — keeps generated artifacts separate from specs/docs at repo root).
+
+1. **`impl/claude/research/platform-comparison.md`** — readable writeup: per-platform breakdown (payout, fees, shipping, effort, sell-through, automation surface) plus the recommendation rationale and research date.
+2. **`impl/claude/data/platform-rules.json`** — structured decision rules consumed programmatically by later tools:
    ```json
    {
      "researched_at": "2026-07-18",
