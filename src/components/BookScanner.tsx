@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, Upload, Loader2, BookOpen, DollarSign, Tag, RefreshCw } from "lucide-react";
+import { Camera, Upload, Loader2, BookOpen, DollarSign, Tag, RefreshCw, Copy, ExternalLink, X, Check } from "lucide-react";
 
 type ScannedBook = {
   id: string;
@@ -28,6 +28,12 @@ export default function BookScanner() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Listing Modal State
+  const [listingBook, setListingBook] = useState<ScannedBook | null>(null);
+  const [listingContent, setListingContent] = useState<{ listingTitle: string, description: string, tags: string } | null>(null);
+  const [isGeneratingListing, setIsGeneratingListing] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,8 +94,38 @@ export default function BookScanner() {
     }
   };
 
-  const handleListNow = (book: ScannedBook) => {
-    alert(`Listing functionality triggered for ${book.title}. (Would open automation script)`);
+  const handleListNow = async (book: ScannedBook) => {
+    setListingBook(book);
+    setListingContent(null);
+    setIsGeneratingListing(true);
+    
+    try {
+      const res = await fetch("/api/listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: book.title,
+          author: book.author,
+          isbn: book.isbn,
+          suggestedPrice: book.suggestedPrice
+        }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setListingContent(data);
+      }
+    } catch (err) {
+      console.error("Failed to generate listing:", err);
+    } finally {
+      setIsGeneratingListing(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
   };
 
   return (
@@ -214,6 +250,109 @@ export default function BookScanner() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Listing Automation Modal */}
+      {listingBook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b border-neutral-800 sticky top-0 bg-neutral-900 z-10">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Tag className="text-blue-400 w-6 h-6" /> 
+                Automate Listing for "{listingBook.title}"
+              </h3>
+              <button onClick={() => setListingBook(null)} className="p-2 hover:bg-neutral-800 rounded-full transition-colors text-neutral-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 flex-grow">
+              {isGeneratingListing ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-12 h-12 text-blue-400 animate-spin mb-4" />
+                  <p className="text-lg text-neutral-300">AI is writing your optimized listing...</p>
+                  <p className="text-sm text-neutral-500 mt-2">Analyzing title, author, and market trends...</p>
+                </div>
+              ) : listingContent ? (
+                <div className="space-y-6">
+                  {/* Title Field */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-semibold text-neutral-400">Optimized Title (max 80 chars)</label>
+                      <button 
+                        onClick={() => copyToClipboard(listingContent.listingTitle, 'title')}
+                        className="text-xs flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        {copiedField === 'title' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copiedField === 'title' ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    <div className="bg-neutral-950 border border-neutral-800 p-3 rounded-lg text-white font-medium">
+                      {listingContent.listingTitle}
+                    </div>
+                  </div>
+
+                  {/* Description Field */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-semibold text-neutral-400">Professional Description</label>
+                      <button 
+                        onClick={() => copyToClipboard(listingContent.description, 'description')}
+                        className="text-xs flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        {copiedField === 'description' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copiedField === 'description' ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    <div className="bg-neutral-950 border border-neutral-800 p-3 rounded-lg text-white text-sm whitespace-pre-wrap">
+                      {listingContent.description}
+                    </div>
+                  </div>
+
+                  {/* Tags Field */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-semibold text-neutral-400">Search Tags</label>
+                      <button 
+                        onClick={() => copyToClipboard(listingContent.tags, 'tags')}
+                        className="text-xs flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        {copiedField === 'tags' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        {copiedField === 'tags' ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    <div className="bg-neutral-950 border border-neutral-800 p-3 rounded-lg text-white text-sm">
+                      {listingContent.tags}
+                    </div>
+                  </div>
+
+                </div>
+              ) : (
+                <div className="py-12 text-center text-red-400">
+                  Failed to generate listing. Please try again.
+                </div>
+              )}
+            </div>
+
+            {/* Action Bar */}
+            <div className="p-6 border-t border-neutral-800 bg-neutral-900/50 sticky bottom-0">
+              <a 
+                href={`https://www.ebay.com/sl/prelist/suggest?sr=SellHub&kw=${encodeURIComponent(listingContent?.listingTitle || listingBook.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold transition-all ${
+                  listingContent ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed pointer-events-none'
+                }`}
+              >
+                Continue to eBay
+                <ExternalLink className="w-5 h-5" />
+              </a>
+              <p className="text-xs text-center text-neutral-500 mt-3">
+                Clicking this will open eBay in a new tab with the title pre-filled. Paste your copied description there!
+              </p>
+            </div>
           </div>
         </div>
       )}
