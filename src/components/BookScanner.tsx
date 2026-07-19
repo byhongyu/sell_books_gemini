@@ -337,20 +337,31 @@ export default function BookScanner() {
             </div>
 
             {/* Action Bar */}
-            <div className="p-6 border-t border-neutral-800 bg-neutral-900/50 sticky bottom-0">
+            <div className="p-6 border-t border-neutral-800 bg-neutral-900/50 sticky bottom-0 space-y-3">
+              <a 
+                href={`https://sellercentral.amazon.com/product-search/search?q=${encodeURIComponent(listingBook.isbn || listingContent?.listingTitle || listingBook.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold transition-all ${
+                  listingContent ? 'bg-amber-500 hover:bg-amber-400 text-neutral-950 shadow-lg shadow-amber-900/20' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed pointer-events-none'
+                }`}
+              >
+                Continue to Amazon Marketplace
+                <ExternalLink className="w-5 h-5" />
+              </a>
               <a 
                 href={`https://www.ebay.com/sl/prelist/suggest?sr=SellHub&kw=${encodeURIComponent(listingContent?.listingTitle || listingBook.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold transition-all ${
-                  listingContent ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed pointer-events-none'
+                  listingContent ? 'bg-neutral-800 hover:bg-neutral-700 text-white' : 'bg-neutral-800 text-neutral-500 cursor-not-allowed pointer-events-none'
                 }`}
               >
                 Continue to eBay
                 <ExternalLink className="w-5 h-5" />
               </a>
-              <p className="text-xs text-center text-neutral-500 mt-3">
-                Clicking this will open eBay in a new tab with the title pre-filled. Paste your copied description there!
+              <p className="text-xs text-center text-neutral-500 pt-2">
+                Clicking a link will open the marketplace in a new tab. Paste your copied description there!
               </p>
             </div>
           </div>
