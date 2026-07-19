@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const base64Data = image.split(",")[1];
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-3.5-flash",
       contents: [
         {
           role: "user",
